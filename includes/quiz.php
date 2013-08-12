@@ -1,9 +1,14 @@
 <?php
 	include ("../config/config.php");
+	include ("question.php");
 	session_start();
 	$id = $_SESSION['id'];
-	$qid = 1;
-	$ques_answer = "ashima";
+	$qid = $QID;
+	// setting time zone
+  $timezone = "Asia/Calcutta";
+    date_default_timezone_set($timezone);
+
+	$ques_answer = $QUESTION_ANSWER;
 if(!isset($_POST['answer']))
 {
 	header("Location: /mnp/quiz.php?error=1");
@@ -15,12 +20,18 @@ else
 	$solved_query = "select * from solved where qid='$qid' and id='$id' ";
 	$res = mysql_query($solved_query);
 	$res = mysql_fetch_array($res);
-	if($res['sid'] == "")
+	if($res['status'] == "no")
 	{
 		if($answer == $ques_answer)
 		{
-			$insert_query = "insert into solved (id,qid) values ('$id','$qid') ";
-			$res = mysql_query($insert_query);
+			/**updating the f**ing table **/
+			$now_status = 'yes';
+      		$time = date('Y-m-d H:i:s');
+      		$stime = $res["stime"];
+      		$start = new DateTime($stime);
+    		$interval = strtotime($time) - strtotime($stime);
+			$update_query = "update solved set status='$now_status',etime='$time',time='$interval' where id='$id' and qid='$qid'";
+			$res = mysql_query($update_query);
 			if($res === FALSE) 
 			{
 				echo "what the fuck";

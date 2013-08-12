@@ -1,62 +1,46 @@
 <?php
+
   session_start();
+  $slogout = false;
   if(!isset($_SESSION['id']))
   {
-    header("Location: /mnp/index.php");
-    exit;
-  }
-?>
-<?php
-
-/*
-  Now a script for  stroing value in database the time he started the value
-*/
-  include ("config/config.php");
-
-/*
-  Loading the script which says which question to be loaded;
-*/
-  include ("includes/question.php");
-  $ses_id = $_SESSION['id'];
-  $query = "select * from solved where id='$ses_id' and qid='$QID'";
-  $res_query = mysql_query($query);
-  $res_row = mysql_fetch_array($res_query);
-  /*
-    if not null, then we already have that thing in our database. so he saw the question once.
-
-  */
-  $timezone = "Asia/Calcutta";
-  date_default_timezone_set($timezone);
+    $slogout = true;
     
-
-  if($res_row['id'] != "")
-  {
-    /* leave it. I have to write to something here. i forgot :P */
-
-
   }
-  else
-  {
-      $time = date('Y-m-d H:i:s');
-      $stat = "no";
-      $insert_query = "insert into solved (id,qid,stime,status) values ('$ses_id','$QID','$time','no') ";
-      $res = mysql_query($insert_query);
-      if($res === FALSE) 
-      {
-        echo "what the fuck";
-        die(mysql_error()); // TODO: better error handling
-      }
-  }
-  ?>
 
+include ("config/config.php");
+if(!isset($_GET['id']))
+{
+	header("Location: /mnp/leader.php");
+	exit;
+
+}
+
+$id = $_GET['id'];
+$query = "select h.fname,h.ldap,h.points as points  from (select * from user natural join (solved natural join question ) where qid='$id') as h group by h.id,h.fname,h.ldap  order by points desc";
+$res = mysql_query($query);
+$count = 1;
+$leader_board = "";
+while($row = mysql_fetch_array($res))
+{
+	$leader_board = $leader_board . "<tr>";
+	$leader_board =$leader_board . "<td>" .$count . "</td>";
+	$leader_board = $leader_board . "<td>".$row['fname']."</td>";
+	$leader_board = $leader_board . "<td>".$row['ldap'] . "</td>";
+	$leader_board = $leader_board .  "<td>".$row['points']."</td>" ;       
+	$count = $count + 1;       
+	            
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Puzzle of the week</title>
+    <title>Mnp Club quiz</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Puzzle of the week">
-    <meta name="author" content="Prithviraj Billa">
+    <meta name="description" content="Flatstrap by Littlesparkvt.com">
+    <meta name="author" content="littlesparkvt.com">
+
     <!-- Le styles -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
@@ -78,7 +62,7 @@
     <style type="text/css">
     #awesome
     {
-      margin-top : 16%;
+      margin-top : 8%;
     }
     #awesome2
     {
@@ -106,93 +90,38 @@
               <li >
                 <a href="./index.php">Home</a>
               </li>
-              <li class="">
+              <li class="active">
                 <a href="./leader.php">Leader Board</a>
               </li>
               <li class="">
                 <a href="./rules.html">Rules</a>
               </li>
+              <?php if(!$slogout) { ?>
               <li >
                 <a href="./logout.php"> Logout </a>
               </li>
+              <?php } ?>
             </ul>
           </div>
         </div>
       </div>
     </div>
-    <!-- Div container for question -->
-    <div class="container">
-      <div class="row">
-        <div class="span9 offset2" id="awesome">
-        <?php
-        function alert($type,$mess)
-        {
-          $error = "<div class=\"alert ". $type. "\">";
-          $error = $error . "<button type=\"button\" class=\"close\" data-dismiss=\"alert\">&times;</button>";
-          $error = $error .$mess."</div>";
-
-          return $error;
-        }
-
-        //error handling maxxxx
-        if(isset($_GET['error']))
-        {
-          if($_GET['error'] == '1')
-          {
-              echo alert("alert-error","<strong> Oh snap! </strong> We are sorry to say that your answer is wrong!!");
-          }
-        }
-        if(isset($_GET['aww']))
-        {
-          if($_GET['aww'] == 'fck')
-          {
-            echo alert("alert-info","<strong> What!! </strong> You already solved this question");
-          }
-          elseif ($_GET['aww'] == "done") 
-          {
-
-            echo alert("alert-success","<strong> Congrats !! </strong> Your answer is correct. Check the leader board.");
-            # code...
-          }
-          elseif($_GET['aww'] == '1')
-          {
-            echo alert("alert-success","<strong> Welcome !! </strong> Start solving these puzzles.");
-          }
-          elseif($_GET['aww'] == '2')
-          {
-            echo alert("alert-info","<strong> Welcome Back!! </strong> Awww, we are glad that you are back.");
-          }
-        }  
-
-
-        ?>
-
-
-
-          <?php
-            include ("config/config.php");
-            $ques = " <div class=\"page-header\" style=\"text-align:center !important\">";
-            $ques = $ques . "<h1>". $QUESTION . "</h1> </div>";
-            $ques = $ques . "<h4>" . $QUESTION_DESC. "</h4>";
-            echo $ques;
-            ?>
-
-          <form class="form-horizontal" id="awesome2" method='post' action="includes/quiz.php">
-            <div class="controls">
-              <input class="span5" style="height:40px !important" type="text" placeholder="answer" name="answer" autocomplete='off'>
-            </div>
-            <br/>
-            <div class="controls">
-              <input class="btn span3 btn-primary"  type="submit" value="answer">
-            </div>
-          </form>
-
-
-        </div>
-      </div>
+    <div class="container" id="awesome">
+		<table class="table">
+	        <thead>
+	          <tr>
+	            <th>#</th>
+	            <th>First Name</th>
+	            <th>Ldap ID</th>
+	            <th>Points</th>
+	            <th>Time Taken </th>
+	          </tr>
+	        </thead>
+	        <tbody>
+	        	<?php echo $leader_board; ?>
+	        </tbody>
+	      </table>
     </div>
-
-
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->

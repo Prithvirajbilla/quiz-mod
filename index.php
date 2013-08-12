@@ -18,11 +18,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Mnp Club quiz</title>
+    <title>Puzzle of the week</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Flatstrap by Littlesparkvt.com">
-    <meta name="author" content="littlesparkvt.com">
-
+    <meta name="description" content="Puzzle of the week">
+    <meta name="author" content="Prithviraj Billa">
     <!-- Le styles -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
     <link href="assets/css/bootstrap-responsive.css" rel="stylesheet">
@@ -78,9 +77,6 @@
               <li class="">
                 <a href="./rules.html">Rules</a>
               </li>
-              <li >
-                <a href="./logout.php"> Logout </a>
-              </li>
             </ul>
           </div>
         </div>
@@ -102,7 +98,7 @@
               }
         ?>
         <div class="page-header" style="text-align:center !important">
-          <h1> Mnp Club Quiz </h1>
+          <h1> Puzzle of the Week </h1>
           <small>Organised by STAB 2013</small>
         </div>
         <div class="span6 offset3">

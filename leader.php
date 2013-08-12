@@ -1,6 +1,16 @@
 <?php
+  session_start();
+  $slogout = false;
+  if(!isset($_SESSION['id']))
+  {
+    $slogout = true;
+    
+  }
+?>
+<?php
 include ("config/config.php");
-$query = "select h.fname,h.ldap,sum(h.points) as points ,count(h.qid) as ques from (select * from user natural join (solved natural join question)) as h group by h.id,h.fname,h.ldap order by points desc";
+include ("config/func.php");
+$query = "select h.fname,h.ldap,sum(h.time) as timespent ,count(h.qid) as ques from (select * from user natural join (solved natural join question) where status<>'no') as h group by h.id,h.fname,h.ldap order by count(qid) desc,time";
 $res = mysql_query($query);
 $count = 1;
 $leader_board = "";
@@ -10,7 +20,7 @@ while($row = mysql_fetch_array($res))
 	$leader_board =$leader_board . "<td>" .$count . "</td>";
 	$leader_board = $leader_board . "<td>".$row['fname']."</td>";
 	$leader_board = $leader_board . "<td>".$row['ldap'] . "</td>";
-	$leader_board = $leader_board .  "<td>".$row['points']."</td>" ;       
+	$leader_board = $leader_board .  "<td>".secs_to_h($row['timespent'])."</td>" ;       
 	$leader_board = $leader_board .  "<td>".$row['ques']."</td></tr>";   
 	$count = $count + 1;       
 	            
@@ -21,10 +31,10 @@ while($row = mysql_fetch_array($res))
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Mnp Club quiz</title>
+    <title>Puzzle of the week</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Flatstrap by Littlesparkvt.com">
-    <meta name="author" content="littlesparkvt.com">
+    <meta name="description" content="Puzzle of the week">
+    <meta name="author" content="Prithviraj Billa">
 
     <!-- Le styles -->
     <link href="assets/css/bootstrap.css" rel="stylesheet">
@@ -81,9 +91,11 @@ while($row = mysql_fetch_array($res))
               <li class="">
                 <a href="./rules.html">Rules</a>
               </li>
+              <?php if(!$slogout) { ?>
               <li >
                 <a href="./logout.php"> Logout </a>
               </li>
+              <?php } ?>
             </ul>
           </div>
         </div>
@@ -96,7 +108,7 @@ while($row = mysql_fetch_array($res))
 	            <th>#</th>
 	            <th>First Name</th>
 	            <th>Ldap ID</th>
-	            <th>Points</th>
+	            <th>Timespent</th>
 	            <th>Questions Solved </th>
 	          </tr>
 	        </thead>
